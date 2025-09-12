@@ -28,8 +28,12 @@ class MainActivity : ComponentActivity() {
             }
         }
         week02Variables()
+        week02Functions()
     }
 }
+
+
+
 
 fun week02Variables(){
 //    println("Week02 Variables")
@@ -56,6 +60,34 @@ fun week02Variables(){
 
     println("Age : $age, Height : $height, Student : $isStudent")
 }
+fun week02Functions() {
+    println("Week02 Functions")
+
+//    fun greet(name: String) = "Hello, $name!"
+//
+//    println(greet("Android Developer"))
+
+
+    println("== Kotlin Functions ==")
+
+    fun greet(name: String): String {
+        return "Hello, $name"
+    }
+
+    fun add(a: Int, b: Int) = a + b
+
+
+    fun introduce(name: String, age: Int = 19) {
+        //두번째 인자를 세팅해주지 않으면 기본적으로 19로 지정됨
+        println("My name is $name and I'm $age years old")
+    }
+//    println(greet(name:"Kotlin"))
+//    println("Sum : ${add(a:5, b:-71)}")
+//    introduce(name:"Park")
+//    introduce(name:"Kim", age:29)
+
+}
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
