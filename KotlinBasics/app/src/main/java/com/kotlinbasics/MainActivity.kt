@@ -30,8 +30,8 @@ class MainActivity : ComponentActivity() {
         }
 //        week02Variables()
 //        week02Functions()
-//        week03Classes()
-        week03Collections()
+        week03Classes()
+//        week03Collections()
     }
 }
 
@@ -94,28 +94,57 @@ private fun week02Functions() {
 
 
 private fun week03Classes(){
-    println("== Kotlin Classes ==")
+    Log.d("KotlinWeek03","== Kotlin Classes ==")
 
-    class Student{
-        var name: String = ""
-        var age: Int = 0
-
+    class Person(val name: String, var age: Int){
         fun introduce(){
-            println("Hi, I'm $name and I'm $age years old")
+            Log.d("KotlinWeek03","안녕하세요, $name ($age 세)입니다.")
+        }
+
+        fun birthday(){
+            age++
+            Log.d("KotlinWeek03", "$name 의 생일! 이제 $age 세...")
         }
     }
-    val student = Student()  //기본생성자 호출
-    student.name = "Choi"
-    student.age = 22
-    student.introduce()
 
-    data class Person(val name: String, val age: Int)
+    val person1 = Person(name= "홍길동", age=31)
+    person1.introduce()
+    person1.birthday()
 
-    val person1 = Person(name="Lee", age=24)
-    val person2 = Person(name="Lee", age=24)
+    class Animal(var species: String){
+        var weight : Double = 0.0
+        constructor(species: String, weight: Double) : this(species){
+            this.weight = weight   //this는 실행 시점의 객체
+            Log.d("KotlinWeek03", "$species 의 무게 :  이제 $weight kg")
+        }
+        fun makeSound(){
+            Log.d("KotlinWeek03", "$species 가 소리를 냅니다.")
 
-    println("Person1: $person1")
-    println("Equal?: ${person1 == person2}")
+        }
+    }
+    val puppy = Animal("강아지", 6.5)
+    puppy.makeSound()
+
+//    class Student{
+//        var name: String = ""
+//        var age: Int = 0
+//
+//        fun introduce(){
+//            println("Hi, I'm $name and I'm $age years old")
+//        }
+//    }
+//    val student = Student()  //기본생성자 호출
+//    student.name = "Choi"
+//    student.age = 22
+//    student.introduce()
+//
+//    data class Person(val name: String, val age: Int)
+//
+//    val person1 = Person(name="Lee", age=24)
+//    val person2 = Person(name="Lee", age=24)
+//
+//    println("Person1: $person1")
+//    println("Equal?: ${person1 == person2}")
 }
 
 private fun week03Collections(){
@@ -123,12 +152,26 @@ private fun week03Collections(){
 
 
     val fruits = listOf("apple", "banana", "orange")
+    val mutableFruits = mutableListOf("kiwi","watermelon")
 //    fruits.add("kiwi")
+    mutableFruits.add("banana")
+
     Log.d("KotlinWeek03", "Fruits : $fruits")
+    Log.d("KotlinWeek03", "Mutable Fruits : $mutableFruits")
 
     for(fruit in fruits){
         Log.d("KotlinWeek03", "Fruit : $fruit")
     }
+
+    val scores = mapOf("Kim" to 97, "Park" to 100, "Lee" to 99)  ///to의 왼쪽에 위치한 게 key, 오른쪽은 value가 됨
+    Log.d("KotlinWeek03", "Scores : $scores")
+
+
+    for(fruit in mutableFruits){
+        Log.d("KotlinWeek03", "Fruit : $fruit")
+    }
+
+    scores.forEach{(name, score) -> Log.d("KotlinWeek03","$name scored $score")}
 }
 
 @Composable
