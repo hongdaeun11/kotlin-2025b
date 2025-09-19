@@ -111,19 +111,28 @@ private fun week03Classes(){
     person1.introduce()
     person1.birthday()
 
-    class Animal(var species: String){
+    open class Animal(var species: String){
         var weight : Double = 0.0
         constructor(species: String, weight: Double) : this(species){
             this.weight = weight   //this는 실행 시점의 객체
             Log.d("KotlinWeek03", "$species 의 무게 :  이제 $weight kg")
         }
-        fun makeSound(){
+        open fun makeSound(){
             Log.d("KotlinWeek03", "$species 가 소리를 냅니다.")
 
         }
     }
     val puppy = Animal("강아지", 6.5)
     puppy.makeSound()
+
+    class Dog(species : String, weight : Double, val breed : String) : Animal(species, weight){
+        override fun makeSound(){
+            Log.d("KotlinWeek03", "$breed($species) 가 멍멍 짖습니다!")
+        }
+    }
+
+    val dog = Dog("개",12.5,"골든 리트리버")
+    dog.makeSound()
 
 //    class Student{
 //        var name: String = ""
