@@ -30,8 +30,8 @@ class MainActivity : ComponentActivity() {
         }
 //        week02Variables()
 //        week02Functions()
-        week03Classes()
-
+//        week03Classes()
+        week03Collections()
     }
 }
 
@@ -118,7 +118,18 @@ private fun week03Classes(){
     println("Equal?: ${person1 == person2}")
 }
 
+private fun week03Collections(){
+    Log.d("KotlinWeek03", "== Kotlin Collections ==")
 
+
+    val fruits = listOf("apple", "banana", "orange")
+//    fruits.add("kiwi")
+    Log.d("KotlinWeek03", "Fruits : $fruits")
+
+    for(fruit in fruits){
+        Log.d("KotlinWeek03", "Fruit : $fruit")
+    }
+}
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
