@@ -40,7 +40,7 @@ This repository contains the source code and documentation for Week 05 of the Ko
 - **OnItemLongClickListener**: Handle item removal
 
 ### How to Run
-1. Open the project in Android Studio (`D:\kotlin-2025a\AppWeek05`).
+1. Open the project in Android Studio (`D:\kotlin-2025b\AppWeek05`).
 2. Build and run on an emulator or device (API 24+ recommended).
 3. Open Logcat and filter by tag `"KotlinWeek05App"` to view outputs (e.g., item additions, removals, list operations).
 
@@ -109,11 +109,11 @@ class MainActivity : AppCompatActivity() {
     - Choose "Empty Views Activity"
     - Project name: `AppWeek05`
     - Package name: `com.appweek05`
-    - Save location: `D:\kotlin-2025a\AppWeek05`
+    - Save location: `D:\kotlin-2025b\AppWeek05`
 
 2. **Initial Setup**:
    ```bash
-   cd D:\kotlin-2025a
+   cd D:\kotlin-2025b
    git add AppWeek05/
    git commit -m "week 05: ListView Apps initialization"
    ```
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
 4. Sync project with Gradle files.
 
 ## Git Workflow
-- Continue using the existing Git repository in `D:\kotlin-2025a`.
+- Continue using the existing Git repository in `D:\kotlin-2025b`.
 - To commit Week 05 changes:
   ```bash
   git add AppWeek05/
