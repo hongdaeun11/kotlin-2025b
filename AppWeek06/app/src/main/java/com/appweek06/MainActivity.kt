@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var radioGroup: RadioGroup
     private lateinit var radioStudentList: RadioButton
     private lateinit var radioShoppingCart: RadioButton
+    private lateinit var radioTaskManager: RadioButton
 
     private lateinit var listView: ListView
     private lateinit var editTextInput: EditText
@@ -30,10 +31,17 @@ class MainActivity : AppCompatActivity() {
     // Data Storage
     private lateinit var studentList: ArrayList<Student>
     private lateinit var cartItemList: ArrayList<CartItem>
+    private lateinit var taskList: ArrayList<Task>
 
     // Adapters
     private lateinit var studentAdapter: ArrayAdapter<Student>
     private lateinit var cartAdapter: ArrayAdapter<CartItem>
+    private lateinit var taskAdapter: ArrayAdapter<Task>
+
+    // Task Manager specific UI
+    private lateinit var layoutTaskControls: LinearLayout
+    private lateinit var spinnerPriority: Spinner
+    private lateinit var editTextDescription: EditText
 
     // Current Mode
     private var currentMode = AppMode.STUDENT_LIST
@@ -61,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     private fun initializeData() {
         studentList = ArrayList()
         cartItemList = ArrayList()
+        taskList = ArrayList()
 
         Log.d(TAG, "Data structures initialized")
     }
@@ -70,6 +79,7 @@ class MainActivity : AppCompatActivity() {
         radioGroup = findViewById(R.id.radioGroup)
         radioStudentList = findViewById(R.id.radioStudentList)
         radioShoppingCart = findViewById(R.id.radioShoppingCart)
+        radioTaskManager = findViewById(R.id.radioTaskManager)
 
         // Common UI
         listView = findViewById(R.id.listView)
@@ -83,6 +93,12 @@ class MainActivity : AppCompatActivity() {
         editTextPrice = findViewById(R.id.editTextPrice)
         editTextQuantity = findViewById(R.id.editTextQuantity)
 
+        // Task Manager specific
+        layoutTaskControls = findViewById(R.id.layoutTaskControls)
+        spinnerPriority = findViewById(R.id.spinnerPriority)
+        editTextDescription = findViewById(R.id.editTextDescription)
+
+        setupPrioritySpinner()
 
         Log.d(TAG, "Views initialized")
     }
@@ -90,9 +106,18 @@ class MainActivity : AppCompatActivity() {
     private fun setupAdapters() {
         studentAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, studentList)
         cartAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, cartItemList)
+        taskAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, taskList)
 
         Log.d(TAG, "Adapters setup completed")
     }
+
+    private fun setupPrioritySpinner() {
+        val priorities = TaskPriority.values().map { it.displayName }
+        val priorityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, priorities)
+        priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerPriority.adapter = priorityAdapter
+    }
+
 
     private fun setupListeners() {
         // Mode selection listeners
@@ -100,6 +125,7 @@ class MainActivity : AppCompatActivity() {
             when (checkedId) {
                 R.id.radioStudentList -> setMode(AppMode.STUDENT_LIST)
                 R.id.radioShoppingCart -> setMode(AppMode.SHOPPING_CART)
+                R.id.radioTaskManager -> setMode(AppMode.TASK_MANAGER)
             }
         }
 
@@ -120,25 +146,34 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Event listeners setup completed")
     }
 
-    private fun setMode(mode: AppMode) {
+    private fun setMode(mode: AppMode) {   //화면 전환을 해줌
         currentMode = mode
 
         // Update UI visibility
-        when (mode) {
+        when (mode) {    //STUDENT 에 SHOPPING, TASK_MANAGER 을 추가한 것이기 때문에
             AppMode.STUDENT_LIST -> {
                 editTextInput.hint = "Enter student name"
                 buttonAdd.text = "Add Student"
                 layoutCartControls.visibility = View.GONE
-
+                layoutTaskControls.visibility = View.GONE
                 listView.adapter = studentAdapter
             }
             AppMode.SHOPPING_CART -> {
                 editTextInput.hint = "Enter item name"
                 buttonAdd.text = "Add Item"
                 layoutCartControls.visibility = View.VISIBLE
-
+                layoutTaskControls.visibility = View.GONE
                 listView.adapter = cartAdapter
                 updateCartInfo()
+            }
+
+            AppMode.TASK_MANAGER -> {
+                editTextInput.hint = "Enter task title"
+                buttonAdd.text = "Add Task"
+                layoutTaskControls.visibility = View.VISIBLE
+                layoutCartControls.visibility = View.GONE
+                listView.adapter = taskAdapter
+                updateTaskInfo()
             }
         }
 
@@ -157,11 +192,11 @@ class MainActivity : AppCompatActivity() {
         when (currentMode) {
             AppMode.STUDENT_LIST -> addStudent(input)
             AppMode.SHOPPING_CART -> addCartItem(input)
-
+            AppMode.TASK_MANAGER -> addTask(input)
         }
 
-        editTextInput.text.clear()
-        clearAdditionalFields()
+        editTextInput.text.clear()  //학생이름 작업이름 등등이 지워져야함
+        clearAdditionalFields()    //작업 디스크립션 초기화
         updateInfoDisplay()
     }
 
@@ -206,13 +241,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         val existingItem = cartItemList.find { it.name == name }
-        if (existingItem != null) {
+        if (existingItem != null) {   //널 값이 아니면
             existingItem.quantity += quantity
             cartAdapter.notifyDataSetChanged()
-            showToast("Updated quantity for: $name")
+            showToast("Updated quantity for: $name")    //팝업상자
         } else {
             val cartItem = CartItem(name, quantity, price)
-            cartItemList.add(cartItem)
+            cartItemList.add(cartItem)   //이름 수량 단가로 된 것을 arraylist에 추가를 해줌
             cartAdapter.notifyDataSetChanged()
             showToast("Added to cart: $name")
         }
@@ -222,14 +257,29 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun clearAdditionalFields() {
+    private fun clearAdditionalFields() {  //쇼핑카트 가격과 수량 지워주는 입력상자
         editTextPrice.text.clear()
         editTextQuantity.text.clear()
+        editTextDescription.text.clear()
+        spinnerPriority.setSelection(0)
+    }
+    
+    private fun addTask(title: String) {
+        val description = editTextDescription.text.toString().trim()
+        val priorityIndex = spinnerPriority.selectedItemPosition
+        val priority = TaskPriority.values()[priorityIndex]  //인덱스 값이 0 1 2 로 됨
 
+        val task = Task(title, description, false, priority)  //새로운 작업 객체 생성  4개의 필드만 사용, 3개는 선언만 해둠(DataModels 가보면 알 수 있음)
+        taskList.add(task)
+        taskAdapter.notifyDataSetChanged()  
 
+        updateTaskInfo()
+        showToast("Added task: $title")
+        Log.d(TAG, "Added task: $title with priority: ${priority.displayName}")
     }
 
-    private fun clearAll() {
+
+    private fun clearAll() {   //전부 지우기
         when (currentMode) {
             AppMode.STUDENT_LIST -> {
                 val count = studentList.size
@@ -243,6 +293,13 @@ class MainActivity : AppCompatActivity() {
                 cartAdapter.notifyDataSetChanged()
                 showToast("Cleared all $count items from cart")
                 updateCartInfo()
+            }
+            AppMode.TASK_MANAGER -> {
+                val count = taskList.size
+                taskList.clear()
+                taskAdapter.notifyDataSetChanged()
+                showToast("Cleared all $count tasks")
+                updateTaskInfo()
             }
         }
 
@@ -260,21 +317,25 @@ class MainActivity : AppCompatActivity() {
                 val item = cartItemList[position]
                 showItemDetailsDialog(item)
             }
+            AppMode.TASK_MANAGER -> {
+                val task = taskList[position]
+                toggleTaskCompletion(task, position)
+            }
         }
     }
 
-    private fun handleItemLongClick(position: Int) {
+    private fun handleItemLongClick(position: Int) {  //길게 누르면 삭제
         AlertDialog.Builder(this)
             .setTitle("Delete Item")
             .setMessage("Are you sure you want to delete this item?")
-            .setPositiveButton("Delete") { _, _ ->
-                removeItem(position)
+            .setPositiveButton("Delete") { _, _ ->       //확인하는 것
+                removeItem(position)  //0 1 2 몇 번째 꺼 가져갈 지(위치정보 던져줌)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("Cancel", null)  //취소하는것
             .show()
     }
 
-    private fun removeItem(position: Int) {
+    private fun removeItem(position: Int) {   //길게 눌렀을 때 이 함수가 call 됨
         when (currentMode) {
             AppMode.STUDENT_LIST -> {
                 if (position < studentList.size) {
@@ -291,11 +352,19 @@ class MainActivity : AppCompatActivity() {
                     updateCartInfo()
                 }
             }
+            AppMode.TASK_MANAGER -> {
+                if (position < taskList.size) {
+                    val task = taskList.removeAt(position)
+                    taskAdapter.notifyDataSetChanged()
+                    showToast("Removed: ${task.title}")
+                    updateTaskInfo()
+                }
+            }
         }
         updateInfoDisplay()
     }
 
-    private fun showItemDetailsDialog(item: CartItem) {
+    private fun showItemDetailsDialog(item: CartItem) {  //alert 찍는 것
         val message = """
             Item: ${item.name}
             Quantity: ${item.quantity}
@@ -306,9 +375,21 @@ class MainActivity : AppCompatActivity() {
 
         AlertDialog.Builder(this)
             .setTitle("Item Details")
-            .setMessage(message)
+            .setMessage(message)    //위에서 문자열로 만들어 진 것을 여기서 띄움 (짧게 클릭 시)
             .setPositiveButton("OK", null)
             .show()
+        }
+
+//        updateInfoDisplay()
+
+    private fun toggleTaskCompletion(task: Task, position: Int) {
+        task.isCompleted = !task.isCompleted
+        taskAdapter.notifyDataSetChanged()
+        updateTaskInfo()
+
+        val status = if (task.isCompleted) "completed" else "pending"
+        showToast("Task marked as $status")
+        Log.d(TAG, "Task '${task.title}' marked as $status")
     }
 
     private fun updateInfoDisplay() {
@@ -317,6 +398,7 @@ class MainActivity : AppCompatActivity() {
                 textViewInfo.text = "Total Students: ${studentList.size}"
             }
             AppMode.SHOPPING_CART -> updateCartInfo()
+            AppMode.TASK_MANAGER -> updateTaskInfo()
         }
     }
 
@@ -324,6 +406,15 @@ class MainActivity : AppCompatActivity() {
         val totalItems = cartItemList.sumOf { it.quantity }
         val totalValue = cartItemList.sumOf { it.getTotalPrice() }
         textViewInfo.text = "Items: $totalItems | Total: $${String.format("%.2f", totalValue)}"
+    }
+
+
+    private fun updateTaskInfo() {
+        val completed = taskList.count { it.isCompleted }
+        val pending = taskList.size - completed
+        val highPriority = taskList.count { it.priority == TaskPriority.HIGH && !it.isCompleted }
+
+        textViewInfo.text = "Tasks: $pending pending, $completed completed | High Priority: $highPriority"
     }
 
     private fun addInitialData() {
@@ -345,6 +436,14 @@ class MainActivity : AppCompatActivity() {
         // Notify all adapters
         studentAdapter.notifyDataSetChanged()
         cartAdapter.notifyDataSetChanged()
+        taskAdapter.notifyDataSetChanged()
+
+        // Add initial tasks
+        taskList.addAll(listOf(
+            Task("Complete Assignment", "Mobile Programming", false, TaskPriority.HIGH),
+            Task("Shopping", "Visit Mart", false, TaskPriority.MEDIUM),
+            Task("Tour", "Museum", true, TaskPriority.LOW)
+        ))
 
         Log.d(TAG, "Initial data added to all modes")
     }
@@ -362,4 +461,6 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         Log.d(TAG, "onPause: Saving state in mode: ${currentMode.displayName}")
     }
+
 }
+
