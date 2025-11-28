@@ -2,60 +2,60 @@ package com.appweek12
 
 import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.appweek12.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private var count = 0
+    private val viewModel: CounterViewModel by viewModels() //by는 위임할 때 사용 delegation
+    //위임하면 NPE날 가능성 줄어듦 lazy 초기화를 해주는 것
+    
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        binding = ActivityMainBinding.inflate(layoutInflater) //이 코드를 까먹으면 NullpointException이 날 수 있음
+         setContentView(binding.root)
 
-        if(savedInstanceState != null){
-            count = savedInstanceState.getInt("count", 0) //count값이 있으면 count값으로 업데이트 , 없으면 0으로 업데이트
-        }
+        setupObservers()
+
         setupListeners()
-        updateCountDisplay()
+
     }
 
-    override fun onSaveInstanceState(outState: Bundle){  //번들은 코드 덩어리 정도?
-        super.onSaveInstanceState(outState)  //슈퍼는 부모 클래스. 부모 클래스에 번들을 보내줌
-        outState.putInt("count", count)
+    private fun setupObservers() {  //관측하고 있다가 변화가 되면 CounterViewModel 에 알림 코루틴의 flow와 같이
+        viewModel.count.observe(this){
+            count -> binding.textViewCount.text = count.toString() //count변수에 담긴 integer을 스트링으로 변환
+
+            when{
+                count > 0 -> binding.textViewCount.setTextColor(Color.BLUE)
+                count < 0 -> binding.textViewCount.setTextColor(Color.RED)
+                else -> binding.textViewCount.setTextColor(Color.BLACK)
+            }
+        }
     }
+
 
     private fun setupListeners(){
         binding.buttonPlus.setOnClickListener{
-            count++
-            updateCountDisplay()
+//            count++
+//            updateCountDisplay()
+            viewModel.increment()
         }
         binding.buttonMinus.setOnClickListener{
-            count--
-            updateCountDisplay()
+            viewModel.decrement()
         }
         binding.buttonReset.setOnClickListener{
-            count = 0
-            updateCountDisplay()
+            viewModel.reset()
         }
         binding.buttonPlus10.setOnClickListener{
-            count+=10 //count = count + 10
-            updateCountDisplay()
+            viewModel.incrementBy10()
         }
     }
 
-    private fun updateCountDisplay() {
-        binding.textViewCount.text = count.toString() //count변수에 담긴 integer을 스트링으로 변환
 
-        when{
-            count > 0 -> binding.textViewCount.setTextColor(Color.BLUE)
-            count < 0 -> binding.textViewCount.setTextColor(Color.RED)
-            else -> binding.textViewCount.setTextColor(Color.BLACK)
-        }
-
-    }
 }
