@@ -17,7 +17,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if(savedInstanceState != null){
+            count = savedInstanceState.getInt("count", 0) //count값이 있으면 count값으로 업데이트 , 없으면 0으로 업데이트
+        }
         setupListeners()
+        updateCountDisplay()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle){  //번들은 코드 덩어리 정도?
+        super.onSaveInstanceState(outState)  //슈퍼는 부모 클래스. 부모 클래스에 번들을 보내줌
+        outState.putInt("count", count)
     }
 
     private fun setupListeners(){
