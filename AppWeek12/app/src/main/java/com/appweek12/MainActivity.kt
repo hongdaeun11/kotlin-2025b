@@ -4,7 +4,11 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.appweek12.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,15 +32,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {  //관측하고 있다가 변화가 되면 CounterViewModel 에 알림 코루틴의 flow와 같이
-        viewModel.count.observe(this){
-            count -> binding.textViewCount.text = count.toString() //count변수에 담긴 integer을 스트링으로 변환
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.count.collect{
+                    count -> binding.textViewCount.text = count.toString() //count변수에 담긴 integer을 스트링으로 변환
 
-            when{
-                count > 0 -> binding.textViewCount.setTextColor(Color.BLUE)
-                count < 0 -> binding.textViewCount.setTextColor(Color.RED)
-                else -> binding.textViewCount.setTextColor(Color.BLACK)
+                    when{
+                        count > 0 -> binding.textViewCount.setTextColor(Color.BLUE)
+                        count < 0 -> binding.textViewCount.setTextColor(Color.RED)
+                        else -> binding.textViewCount.setTextColor(Color.BLACK)
+                    }
+                }
             }
         }
+
+
     }
 
 
